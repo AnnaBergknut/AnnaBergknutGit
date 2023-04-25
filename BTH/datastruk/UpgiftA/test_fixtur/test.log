@@ -1,0 +1,23 @@
+
+INFO [L:69] 
+Testing if the required functions are implemented and correctly defined.
+
+INFO [L:76] All functions OK!
+
+
+INFO [L:126]   insertionsort...
+
+INFO [L:126]   quicksort...
+
+INFO [L:126]   mergesort...
+
+INFO [L:126]   quicksort_hybrid...
+
+INFO [L:126]   mergesort_hybrid...
+
+INFO [L:134] Basic sorting testing OK!
+
+
+INFO [L:138] Testing run time.
+
+INFO [L:141]   insertionsort... 
