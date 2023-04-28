@@ -15,30 +15,13 @@
 // Other I/O device base addresses
 .equ PUSH_BUTTON, 0xff200050
 .equ SEVEN_DISPLAY, 0xff200020
+
+/* Data section, for global data/variables if needed. */
 .data
 	numbers:
 		.word 0x3f, 0x6, 0x5b, 0x4f, 0x66, 0x6d, 0x7d, 0x7, 0x7f, 0x67, 0x77, 0x7c, 0x39, 0x5e, 0x79, 0x71
     CurrentIndex:   .word 15
-/* Data section, for global data/variables if needed. */
-/*.data
-numbers:
-    .word 0x3f  //0
-    .word 0x6   //1
-    .word 0x5b  //2
-    .word 0x4f  //3
-    .word 0x66  //4
-    .word 0x6d  //5
-    .word 0x7d  //6
-    .word 0x7  //7
-    .word 0x7f  //8
-    .word 0x67  //9
-    .word 0x77  //a
-    .word 0x7c  //b
-    .word 0x39  //c
-    .word 0x5e  //d
-    .word 0x79  //E
-    .word 0x71  //F
-*/
+
 /* Code section */
 .text
 
@@ -93,17 +76,17 @@ On system startup some basic configuration is needed, in this case:
 // Write your system startup code here. Follow the steps in the description above!
 _start:
 //    MOV R1, #INT_DISABLE | IRQ_MODE
-    MOV R1, #0b11010010 // interrupts masked, MODE = IRQ
-    MSR CPSR_c, R1 // Change to IRQ mode. CPSR_c means only move the control bits [7:0]
+    MOV R1, #0b11010010 // interrupts masked, MODE = IRQ // irq = interupt request
+    MSR CPSR_c, R1 // Change to IRQ mode. CPSR_c means only move the control bits [7:0] // move to system corissponder register
 //    LDR SP, =A9_ONCHIP_END - 3  // set IRQ stack to top of A9 onchip memory
-    LDR SP, =0xFFFFFFFF - 3 // set IRQ stack to A9 onchip memory
+    LDR SP, =0xFFFFFFFF - 3 // set IRQ stack to A9 onchip memory // load rigister
 
     /* Change to SVC (supervisor) mode with interrupts disabled */
 //    MOV R1, #INT_DISABLE | SVC_MODE
-    MOV R1, #0b11010011 // interrupts masked, MODE = SVC
-    MSR CPSR_c, R1 // change to supervisor mode
+    MOV R1, #0b11010011 // interrupts masked, MODE = SVC // svc = supervise mode
+    MSR CPSR_c, R1 // change to supervisor mode 
     LDR SP, =0x3FFFFFFF - 3 // set SVC stack to top of DDR3 memory
-    MOV R0, #73
+    MOV R0, #73 // push buttom key
     BL CONFIG_GIC   // configure the ARM generic interrupt controller
     BL CONFIG_PUSH_BUTTON // push button
 
