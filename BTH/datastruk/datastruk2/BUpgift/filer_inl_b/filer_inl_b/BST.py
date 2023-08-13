@@ -1,10 +1,9 @@
-''' '''
 class BST:
     class Node:
         def __init__(self):
             self.left = None
             self.right = None
-            self.data = None
+            self.data = None 
 
     def __init__(self):
         self._root = None
@@ -28,48 +27,79 @@ class BST:
         else:
             parent.right = new_node
 
-    def remove(self, element):
-        if self._root is None:
-            return self._root
+    def remove(self, current, element):
+        if current is None:
+            return current
         
-        if self._root > element:
-            self._root.left = self.remove(self._root.left, element)
-            return self._root
-        elif self._root < element:
-            self._root.right = self.remove(self._root.right, element)
-            return self._root
+        if element < current.data:
+            current.left = self.remove(current.left, element)  # Look in the left subtree
+        elif element > current.data:
+            current.right = self.remove(current.right, element)  # Look in the right subtree
+        else:
+            # Node with one child or no child
+            if current.left is None:
+                return current.right
+            elif current.right is None:
+                return current.left
 
-    def find(self, element):
-        pass
+            # Node with two children: find in-order successor and copy its data
+            successor = self.get_min(current.right)
+            current.data = successor
 
-    def pre_order_walk(self):
-        pass
+            # Delete the in-order successor
+            current.right = self.remove(current.right, successor)
 
-    def in_order_walk(self):
-        pass
+        return current
 
-    def post_order_walk(self):
-        pass
+    def find(self, node, element):
+        if node is None:
+            return False
+
+        if node.data == element:  # Compare the data of the current node
+            return True
+        elif element < node.data:
+            return self.find(node.left, element)  # Looking in the left subtree
+        else:
+            return self.find(node.right, element)  # Looing in the right subtree
+
+    def pre_order_walk(self, node):
+        current = node
+        if current:
+            print(current.data)
+            self.pre_order_walk(current.left)
+            self.pre_order_walk(current.right)
+
+    def in_order_walk(self, node):
+        current = node
+        if current:
+            self.in_order_walk(current.left)
+            print(current.data)
+            self.in_order_walk(current.right)
+
+    def post_order_walk(self, node):
+        current = node
+        if current:
+            self.post_order_walk(current.left)
+            self.post_order_walk(current.right)
+            print(current.data)
 
     def get_tree_height(self, node):
         if node is None:
             return 0
-        leftHeight= self.get_tree_height(node.left)
-        rightHeight= self.get_tree_height(node.right)
-        max_height= leftHeight
-        if rightHeight>max_height:
-            max_height = rightHeight
-        return max_height+1
+        else:
+            leftHeight = self.get_tree_height(node.left)
+            rightHeight = self.get_tree_height(node.right)
+            return max(leftHeight, rightHeight) + 1
 
-    def get_min(self):
-        current = self._root
-        while(current.left is not None):
+    def get_min(self , node):
+        current = node
+        while (current.left is not None):
             current = current.left
         return current.data
 
-    def get_max(self):
-        current = self._root
-        while(current.right is not None):
+    def get_max(self, node):
+        current = node
+        while (current.right is not None):
             current = current.right
         return current.data
 
@@ -114,13 +144,28 @@ def main():
     a_list = [ 1,2,3,4,5,6,7,8,9 ]
     b_list = [ 1,9,2,8,3,4,7,5,6 ]
     c_list = [ 7,3,5,6,8,2,1,4,9 ]
+    element_to_find = 5
+    element_to_remove = 3
     bst = BST()
     for i in c_list:
         bst.insert(i)
-    print("min =", bst.get_min())
-    print("max =", bst.get_max())
-    print("hight =", bst.get_tree_height(bst._root))
-    print("remove node", bst.remove(3))
+    print(f"--------------------------before removal of {element_to_remove}--------------------------")
+    print(bst.to_graphviz())
+    bst.remove(bst._root, element_to_remove)
+    print(f"--------------------------after removal of {element_to_remove}--------------------------")
+    print(f"Does {element_to_find} exist in the tree?", bst.find(bst._root, element_to_find))
+    print(f"--------------------------Pre order--------------------------")
+    bst.pre_order_walk(bst._root)
+    print(f"--------------------------In order--------------------------")
+    bst.in_order_walk(bst._root)
+    print(f"--------------------------Post order--------------------------")
+    bst.post_order_walk(bst._root)
+    
+    print("height inclouding the root =", bst.get_tree_height(bst._root))
+    print("height not inclouding the root =", bst.get_tree_height(bst._root) -1)
+    print("min =", bst.get_min(bst._root))
+    print("max =", bst.get_max(bst._root))
+    
     print(bst.to_graphviz())
 
 if __name__ == '__main__':
