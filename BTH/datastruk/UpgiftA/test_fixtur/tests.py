@@ -244,3 +244,78 @@ if __name__ == '__main__':
 
     print('All tests passed successfully.')
     log.info('All tests passed successfully.')
+
+
+
+
+
+def insert(self, data):
+            self._root = self.insert_recursive(self._root, data)
+
+def insert_recursive(self, current, data):
+    current = self.Node()
+    if current is None:
+        return self.Node(data)
+
+    if data < current.data:
+        current.left = self.insert_recursive(current.left, data)
+    else:
+        current.right = self.insert_recursive(current.right, data)
+
+    current.height = 1 + max(self.get_height(current.left), self.get_height(current.right))
+
+    balance = self.get_balance(current)
+
+    # Left Left Case
+    if balance > 1 and data < current.left.data:
+        return self.rotate_right(current)
+
+    # Right Right Case
+    if balance < -1 and data > current.right.data:
+        return self.rotate_left(current)
+
+    # Left Right Case
+    if balance > 1 and data > current.left.data:
+        current.left = self.rotate_left(current.left)
+        return self.rotate_right(current)
+
+    # Right Left Case
+    if balance < -1 and data < current.right.data:
+        current.right = self.rotate_right(current.right)
+        return self.rotate_left(current)
+
+    return current
+
+def get_height(self, current):
+    if current is None:
+        return 0
+    return current.height
+
+def get_balance(self, current):
+    if current is None:
+        return 0
+    return self.get_height(current.left) - self.get_height(current.right)
+
+def rotate_left(self, parent):
+    child = parent.right
+    grandchild = child.left
+
+    child.left = parent
+    parent.right = grandchild
+
+    parent.height = 1 + max(self.get_height(parent.left), self.get_height(parent.right))
+    child.height = 1 + max(self.get_height(child.left), self.get_height(child.right))
+
+    return child
+
+def rotate_right(self, parent):
+    child = parent.left
+    grandchild = child.right
+
+    child.right = parent
+    parent.left = grandchild
+
+    parent.height = 1 + max(self.get_height(parent.left), self.get_height(parent.right))
+    child.height = 1 + max(self.get_height(child.left), self.get_height(child.right))
+
+    return child
