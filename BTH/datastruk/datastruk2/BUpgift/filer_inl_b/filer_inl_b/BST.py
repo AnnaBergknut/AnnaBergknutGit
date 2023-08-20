@@ -1,104 +1,163 @@
+""" BST tree, Anna Bergknut """
 class BST:
+    """ Class for the bst tree """
     class Node:
+        """ Class for the nodes """
         def __init__(self):
             self.left = None
             self.right = None
-            self.data = None 
+            self.data = None
 
     def __init__(self):
         self._root = None
-        self.node_id = 0  # ONLY USED WITHIN to_graphviz()!
+        self.node_id = 0
 
     def insert(self, element):
+        """ The funktion used to create the tree """
         new_node = self.Node()
         new_node.data = element
-        if self._root is None:
+        if self._root is None: # First node
             self._root = new_node
             return
+
         current = self._root
-        while current != None:
+        parent = None
+
+        while current:
             parent = current
-            if element < current.data:
+            if element == current.data:
+                return  # Already exists, do nothing
+            elif element < current.data:
                 current = current.left
             else:
                 current = current.right
         if element < parent.data:
-            parent.left = new_node
+            parent.left = new_node # Smaller
         else:
-            parent.right = new_node
+            parent.right = new_node # Bigger
 
-    def remove(self, current, element):
-        if current is None:
+    def remove(self, element):
+        """ I had a miss match with the inputs, needed to know what node to start on """
+        self._root = self.temp_remove(self._root, element)
+        return self._root
+
+    def temp_remove(self, current, element):
+        """ Find, remove and then fixing the tree """
+        if current is None: # No tree
             return current
-        
+
         if element < current.data:
-            current.left = self.remove(current.left, element)  # Look in the left subtree
+            current.left = self.temp_remove(current.left, element)  # Look in the left subtree
         elif element > current.data:
-            current.right = self.remove(current.right, element)  # Look in the right subtree
+            current.right = self.temp_remove(current.right, element)  # Look in the right subtree
         else:
-            # Node with one child or no child
-            if current.left is None:
-                return current.right
-            elif current.right is None:
+            if current.left is None and current.right is None: # No child
+                if current == self._root:# Remove the root if it's the only node
+                    return None
+                else:
+                    current = None
+            elif current.right is None and current.left is not None: # Only left
                 return current.left
-
-            # Node with two children: find in-order successor and copy its data
-            successor = self.get_min(current.right)
-            current.data = successor
-
-            # Delete the in-order successor
-            current.right = self.remove(current.right, successor)
-
+            else: # Has right or both
+                successor = self.temp_get_min(current.right)
+                current.data = successor
+                current.right = self.temp_remove(current.right, successor)
         return current
 
-    def find(self, current, element):
+    def find(self, element):
+        """ Finds the node """
+        current = self._root
+        while current:
+            if current.data == element:
+                return True
+            elif element < current.data:
+                current = current.left  # Move to the left subtree
+            else:
+                current = current.right  # Move to the right subtree
+        return False
+
+    def pre_order_walk(self):
+        """ I had a miss match with the inputs, needed to know what node to start on """
+        my_list = []
+        self.temp_pre_order_walk(my_list, self._root)
+        return my_list
+
+    def temp_pre_order_walk(self, my_list, current):
+        """ Pre order reclusive """
+        if current:
+            my_list.append(current.data)
+            self.temp_pre_order_walk(my_list, current.left)
+            self.temp_pre_order_walk(my_list, current.right)
+
+    def in_order_walk(self):
+        """ I had a miss match with the inputs, needed to know what node to start on """
+        my_list = []
+        self.temp_in_order_walk(my_list, self._root)
+        return my_list
+
+    def temp_in_order_walk(self,my_list,  current):
+        """ In order reclusive """
+        if current:
+            self.temp_in_order_walk(my_list, current.left)
+            my_list.append(current.data)
+            self.temp_in_order_walk(my_list, current.right)
+
+    def post_order_walk(self):
+        """ I had a miss match with the inputs, needed to know what node to start on """
+        my_list = []
+        self.temp_post_order_walk(my_list, self._root)
+        return my_list
+
+    def temp_post_order_walk(self, my_list, current):
+        """" Post order reclusive """
+        if current:
+            self.temp_post_order_walk(my_list, current.left)
+            self.temp_post_order_walk(my_list, current.right)
+            my_list.append(current.data)
+
+    def get_tree_height(self):
+        """ Used BFS to count the deepest breanch """
+        current = self._root
         if current is None:
-            return False
+            return -1
 
-        if current.data == element:  # Compare the data of the current node
-            return True
-        elif element < current.data:
-            return self.find(current.left, element)  # Looking in the left subtree
-        else:
-            return self.find(current.right, element)  # Looing in the right subtree
+        queue = [(current, 1)]
+        max_height = 0
 
-    def pre_order_walk(self, current):
-        if current:
-            print(current.data)
-            self.pre_order_walk(current.left)
-            self.pre_order_walk(current.right)
+        while queue:
+            current, height = queue.pop(0)
+            max_height = max(max_height, height)
 
-    def in_order_walk(self, current):
-        if current:
-            self.in_order_walk(current.left)
-            print(current.data)
-            self.in_order_walk(current.right)
+            if current.left:
+                queue.append((current.left, height + 1))
 
-    def post_order_walk(self, current):
-        if current:
-            self.post_order_walk(current.left)
-            self.post_order_walk(current.right)
-            print(current.data)
+            if current.right:
+                queue.append((current.right, height + 1))
 
-    def get_tree_height(self, current):
-        if current is None:
-            return 0
-        else:
-            leftHeight = self.get_tree_height(current.left)
-            rightHeight = self.get_tree_height(current.right)
-            return max(leftHeight, rightHeight) + 1
+        return max_height-1
 
-    def get_min(self , current):
-        while (current.left is not None):
+    def get_min(self):
+        """ I had a miss match with the inputs, needed to know what node to start on """
+        return self.temp_get_min(self._root)
+
+    def temp_get_min(self , current):
+        """ Find smalest node from startpoint """
+        while current.left is not None:
             current = current.left
         return current.data
 
-    def get_max(self, current):
-        while (current.right is not None):
+    def get_max(self):
+        """" I had a miss match with the inputs, needed to know what node to start on """
+        return self.temp_get_max(self._root)
+
+    def temp_get_max(self, current):
+        """ Find biggest nod from startpoint """
+        while current.right is not None:
             current = current.right
         return current.data
 
     def to_graphviz_rec(self, data, current):
+        """ Not my funktion """
         my_node_id = self.node_id
         data += "\t" + str(my_node_id) + \
             " [label=\"" + str(current.data) + "\"];\n"
@@ -125,6 +184,7 @@ class BST:
         return data
 
     def to_graphviz(self):
+        """ Not my funktion """
         data = ""
         if self._root is not None:
             self.node_id = 0
@@ -136,33 +196,32 @@ class BST:
         return data
 
 def main():
+    """ Main """
     a_list = [ 1,2,3,4,5,6,7,8,9 ]
     b_list = [ 1,9,2,8,3,4,7,5,6 ]
     c_list = [ 7,3,5,6,8,2,1,4,9 ]
+    d_list = [2,1,3]
     element_to_find = 5
-    element_to_remove = 3
+    element_to_delete = 3
     bst = BST()
-    for element in c_list:
+    for element in d_list:
         bst.insert(element)
-    print("::::::::::::::::::::::::::BST::::::::::::::::::::::::::")
-    print(f"--------------------------Before removal of {element_to_remove}--------------------------")
+    print("::::BST::::")
+    print(f"-- Before removal of {element_to_delete} --")
     print(bst.to_graphviz())
-    bst.remove(bst._root, element_to_remove)
-    print(f"--------------------------After removal of {element_to_remove}--------------------------")
-    print(f"Does {element_to_find} exist in the tree?", bst.find(bst._root, element_to_find))
-    print(f"--------------------------Pre order--------------------------")
-    bst.pre_order_walk(bst._root)
-    print(f"--------------------------In order--------------------------")
-    bst.in_order_walk(bst._root)
-    print(f"--------------------------Post order--------------------------")
-    bst.post_order_walk(bst._root)
-    
-    print("height inclouding the root =", bst.get_tree_height(bst._root))
-    print("Height not inclouding the root =", bst.get_tree_height(bst._root) -1)
-    print("Min =", bst.get_min(bst._root))
-    print("Max =", bst.get_max(bst._root))
-    
+    bst.remove(element_to_delete)
+    print(f"-- After removal of {element_to_delete} --")
     print(bst.to_graphviz())
+    print(f"Does {element_to_find} exist in the tree?", bst.find(element_to_find))
+    print(f"-- Pre order --")
+    bst.pre_order_walk()
+    print(f"-- In order --")
+    bst.in_order_walk()
+    print(f"-- Post order --")
+    bst.post_order_walk()
+    print("Height =", bst.get_tree_height())
+    print("Min =", bst.get_min())
+    print("Max =", bst.get_max())
 
 if __name__ == '__main__':
     main()
