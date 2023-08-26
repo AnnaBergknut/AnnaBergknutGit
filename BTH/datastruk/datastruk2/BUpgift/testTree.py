@@ -1,48 +1,155 @@
+def remove(self, element):
+    self.temp_remove(self._root, element)
+
+def temp_remove(self, current, element):
+    if current is None: # No tree
+        return current
+    
+    if element < current.data:
+        current.left = self.temp_remove(current.left, element)  # Look in the left subtree
+    elif element > current.data:
+        current.right = self.temp_remove(current.right, element)  # Look in the right subtree
+    else:
+        if current.left is None and current.right is None: # No child
+            current = None
+        elif current.left is None and current.right is not None: # Has right
+            successor = self.temp_get_min(current.right) # Find successor
+            current.data = successor # Copy it's data
+            current.right = self.temp_remove(current.right, successor) # Remove the leaf "successor"
+        elif current.right is None and current.left is not None: # Has left
+            successor = self.temp_get_max(current.left) # Find successor
+            current.data = successor # Copy it's data
+            current.right = self.temp_remove(current.left, successor) # Remove the leaf "successor"
+        else: # Node with two children
+            successor = self.temp_get_min(current.right) # Find successor
+            current.data = successor # Copy it's data
+            current.right = self.temp_remove(current.right, successor) # Remove the leaf "successor"
+
+    return current   
+
+# ------------------------------------------------------
+
 class AVL:
     class Node:
-        def __init__(self, data):
+        def __init__(self):
             self.left = None
             self.right = None
-            self.data = data
-            self.height = 1
+            self.data = None
+            self.height = None
 
     def __init__(self):
         self._root = None
         self.node_id = 0  # ONLY USED WITHIN to_graphviz()!
-        pass
 
     def insert(self, data):
-        self._root = self.insert_recursive(self._root, data)
+        new_node = self.Node()
+        new_node.data = data
+        new_node.left = None  
+        new_node.right = None  
 
-    def insert_recursive(self, current, data):
-        if current is None:
-            return self.Node(data)
+        if not self._root:
+            self._root = new_node
+            return
 
-        if data < current.data:
-            current.left = self.insert_recursive(current.left, data)
+        current = new_node
+        parent = None
+        while current:
+            parent = current
+            if data < current.data:
+                current = current.left
+            else:
+                current = current.right
+
+        if data < parent.data:
+            parent.left = new_node
         else:
-            current.right = self.insert_recursive(current.right, data)
+            parent.right = new_node
 
-        current.height = 1 + max(self.get_tree_height(current.left), self.get_tree_height(current.right))
+        self.rebalance_tree(parent)
 
-        balance = self.get_balance(current)
+    def remove(self, data):
+        if not self._root:
+            return
 
-        if balance > 1 and data < current.left.data:
-            return self.rotate_right(current)
+        parent = None
+        current = self._root
+        while current and current.data != data:
+            parent = current
+            if data < current.data:
+                current = current.left
+            else:
+                current = current.right
 
-        if balance < -1 and data > current.right.data:
-            return self.rotate_left(current)
+        if not current:
+            return
 
-        if balance > 1 and data > current.left.data:
-            current.left = self.rotate_left(current.left)
-            return self.rotate_right(current)
+        if current.left and current.right:
+            successor_parent = current
+            successor = current.right
+            while successor.left:
+                successor_parent = successor
+                successor = successor.left
+            current.data = successor.data
+            parent = successor_parent
+            current = successor
 
-        if balance < -1 and data < current.right.data:
-            current.right = self.rotate_right(current.right)
-            return self.rotate_left(current)
+        child = None
+        if current.left:
+            child = current.left
+        elif current.right:
+            child = current.right
 
-        return current
+        if not parent:
+            self._root = child
+        elif parent.left == current:
+            parent.left = child
+        else:
+            parent.right = child
 
+        self.rebalance_tree(parent)
+
+    def rebalance_tree(self, start_node):
+        current = start_node
+        while current:
+            current.height = 1 + max(self.get_tree_height(current.left), self.get_tree_height(current.right))
+            balance = self.get_balance(current)
+
+            if balance > 1 and self.get_balance(current.left) >= 0:
+                current = self.rotate_right(current)
+            elif balance < -1 and self.get_balance(current.right) <= 0:
+                current = self.rotate_left(current)
+            elif balance > 1 and self.get_balance(current.left) < 0:
+                current.left = self.rotate_left(current.left)
+                current = self.rotate_right(current)
+            elif balance < -1 and self.get_balance(current.right) > 0:
+                current.right = self.rotate_right(current.right)
+                current = self.rotate_left(current)
+
+            if current == self._root:
+                break
+
+            parent = self.find_parent(self._root, current)
+            if parent:
+                if current.data < parent.data:
+                    parent.left = current
+                else:
+                    parent.right = current
+            current = parent
+    
+    def find_parent(self, root, node):
+        parent = None
+        current = root
+        while current:
+            if node.data == current.data:
+                return parent
+            parent = current
+            if node.data < current.data:
+                current = current.left
+            else:
+                current = current.right
+
+        return None
+    
     def get_balance(self, current):
         if current is None:
             return 0
@@ -72,54 +179,15 @@ class AVL:
 
         return child
 
-    def remove(self, current, data):
-        if current is None:
-            return current
-        
-        if data < current.data:
-            current.left = self.remove(current.left, data)  # Look in the left subtree
-        elif data > current.data:
-            current.right = self.remove(current.right, data)  # Look in the right subtree
-        else:
-            if current.left is None:
-                return current.right
-            elif current.right is None:
-                return current.left
-
-            successor = self.get_min(current.right)
-            current.data = successor
-
-            current.right = self.remove(current.right, successor)
-
-        current.height = 1 + max(self.get_tree_height(current.left), self.get_tree_height(current.right))
-        balance = self.get_balance(current)
-
-        if balance > 1 and self.get_balance(current.left) >= 0:
-            return self.rotate_right(current)
-
-        if balance < -1 and self.get_balance(current.right) <= 0:
-            return self.rotate_left(current)
-
-        if balance > 1 and self.get_balance(current.left) < 0:
-            current.left = self.rotate_left(current.left)
-            return self.rotate_right(current)
-
-        if balance < -1 and self.get_balance(current.right) > 0:
-            current.right = self.rotate_right(current.right)
-            return self.rotate_left(current)
-
-        return current
-
     def find(self, current, element):
-        if current is None:
-            return False
-
-        if current.data == element:  # Compare the data of the current node
-            return True
-        elif element < current.data:
-            return self.find(current.left, element)  # Looking in the left subtree
-        else:
-            return self.find(current.right, element)  # Looing in the right subtree
+        while current:
+            if current.data == element:
+                return True
+            elif element < current.data:
+                current = current.left  # Move to the left subtree
+            else:
+                current = current.right  # Move to the right subtree
+        return False
 
     def pre_order_walk(self, current):
         if current:
@@ -201,12 +269,13 @@ def main():
     element_to_find = 5
     element_to_remove = 3
     avl = AVL()
+    print(b_list)
     for element in b_list:
         avl.insert(element)
     print("::::::::::::::::::::::::::AVL::::::::::::::::::::::::::")
     print(f"--------------------------Before removal of {element_to_remove}--------------------------")
     print(avl.to_graphviz())
-    avl.remove(avl._root, element_to_remove)
+    avl.remove(element_to_remove)
     print(f"--------------------------After removal of {element_to_remove}--------------------------")
     print(f"Does {element_to_find} exist in the tree?", avl.find(avl._root, element_to_find))
     print(f"--------------------------Pre order--------------------------")

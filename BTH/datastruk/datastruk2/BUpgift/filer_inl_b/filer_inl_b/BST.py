@@ -38,18 +38,18 @@ class BST:
 
     def remove(self, element):
         """ I had a miss match with the inputs, needed to know what node to start on """
-        self._root = self.temp_remove(self._root, element)
+        self._root = self._remove(self._root, element)
         return self._root
 
-    def temp_remove(self, current, element):
+    def _remove(self, current, element):
         """ Find, remove and then fixing the tree """
         if current is None: # No tree
             return current
 
         if element < current.data:
-            current.left = self.temp_remove(current.left, element)  # Look in the left subtree
+            current.left = self._remove(current.left, element)  # Look in the left subtree
         elif element > current.data:
-            current.right = self.temp_remove(current.right, element)  # Look in the right subtree
+            current.right = self._remove(current.right, element)  # Look in the right subtree
         else:
             if current.left is None and current.right is None: # No child
                 if current == self._root:# Remove the root if it's the only node
@@ -59,9 +59,9 @@ class BST:
             elif current.right is None and current.left is not None: # Only left
                 return current.left
             else: # Has right or both
-                successor = self.temp_get_min(current.right)
+                successor = self._get_min(current.right)
                 current.data = successor
-                current.right = self.temp_remove(current.right, successor)
+                current.right = self._remove(current.right, successor)
         return current
 
     def find(self, element):
@@ -79,44 +79,44 @@ class BST:
     def pre_order_walk(self):
         """ I had a miss match with the inputs, needed to know what node to start on """
         my_list = []
-        self.temp_pre_order_walk(my_list, self._root)
+        self._pre_order_walk(my_list, self._root)
         return my_list
 
-    def temp_pre_order_walk(self, my_list, current):
+    def _pre_order_walk(self, my_list, current):
         """ Pre order reclusive """
         if current:
             my_list.append(current.data)
-            self.temp_pre_order_walk(my_list, current.left)
-            self.temp_pre_order_walk(my_list, current.right)
+            self._pre_order_walk(my_list, current.left)
+            self._pre_order_walk(my_list, current.right)
 
     def in_order_walk(self):
         """ I had a miss match with the inputs, needed to know what node to start on """
         my_list = []
-        self.temp_in_order_walk(my_list, self._root)
+        self._in_order_walk(my_list, self._root)
         return my_list
 
-    def temp_in_order_walk(self,my_list,  current):
+    def _in_order_walk(self,my_list,  current):
         """ In order reclusive """
         if current:
-            self.temp_in_order_walk(my_list, current.left)
+            self._in_order_walk(my_list, current.left)
             my_list.append(current.data)
-            self.temp_in_order_walk(my_list, current.right)
+            self._in_order_walk(my_list, current.right)
 
     def post_order_walk(self):
         """ I had a miss match with the inputs, needed to know what node to start on """
         my_list = []
-        self.temp_post_order_walk(my_list, self._root)
+        self._post_order_walk(my_list, self._root)
         return my_list
 
-    def temp_post_order_walk(self, my_list, current):
+    def _post_order_walk(self, my_list, current):
         """" Post order reclusive """
         if current:
-            self.temp_post_order_walk(my_list, current.left)
-            self.temp_post_order_walk(my_list, current.right)
+            self._post_order_walk(my_list, current.left)
+            self._post_order_walk(my_list, current.right)
             my_list.append(current.data)
 
     def get_tree_height(self):
-        """ Used BFS to count the deepest breanch """
+        """ Used BFS to count the deepest branch """
         current = self._root
         if current is None:
             return -1
@@ -138,9 +138,9 @@ class BST:
 
     def get_min(self):
         """ I had a miss match with the inputs, needed to know what node to start on """
-        return self.temp_get_min(self._root)
+        return self._get_min(self._root)
 
-    def temp_get_min(self , current):
+    def _get_min(self, current):
         """ Find smalest node from startpoint """
         while current.left is not None:
             current = current.left
@@ -148,9 +148,9 @@ class BST:
 
     def get_max(self):
         """" I had a miss match with the inputs, needed to know what node to start on """
-        return self.temp_get_max(self._root)
+        return self._get_max(self._root)
 
-    def temp_get_max(self, current):
+    def _get_max(self, current):
         """ Find biggest nod from startpoint """
         while current.right is not None:
             current = current.right
@@ -206,7 +206,7 @@ def main():
     bst = BST()
     for element in d_list:
         bst.insert(element)
-    print("::::BST::::")
+    print(":::: BST ::::")
     print(f"-- Before removal of {element_to_delete} --")
     print(bst.to_graphviz())
     bst.remove(element_to_delete)

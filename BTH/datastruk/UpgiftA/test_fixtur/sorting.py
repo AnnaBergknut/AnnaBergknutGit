@@ -156,7 +156,7 @@ def main():
     avgavg = avgavg / 5
     print(f"avgavg {avgavg}")
     constant = avgavg / number * math.log(number)
-    # c = avgavg / n**2
+    # constant = avgavg / n**2
     print(f"C {constant}")
 
 if __name__ == "__main__":
