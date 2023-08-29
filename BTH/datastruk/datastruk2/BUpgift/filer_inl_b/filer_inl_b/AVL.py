@@ -7,7 +7,7 @@ class AVL:
             self.left = None
             self.right = None
             self.data = data
-            self.height = 1
+            self.height = 0
 
     def __init__(self):
         self._root = None
@@ -17,20 +17,22 @@ class AVL:
         new_node = self.Node(element)
         if self._root is None:
             self._root = new_node
+            # new_node.height = 1
             return 
 
         self._root = self._insert_recursive(self._root, new_node)
 
     def _insert_recursive(self, current, new_node):
         if current is None:
+        #     new_node.height = 1
             return new_node
 
         if new_node.data == current.data:
             return current
-        elif new_node.data < current.data:
-            current.left = self._insert_recursive(current.left, new_node)
+        elif new_node.data < current.data: 
+            current.left = self._insert_recursive(current.left, new_node) # look in the left subtree
         else:
-            current.right = self._insert_recursive(current.right, new_node)
+            current.right = self._insert_recursive(current.right, new_node) #look in the right subtree
 
         current.height = 1 + max(self._get_tree_height(current.left), self._get_tree_height(current.right))
         balance = self.get_balance(current)
@@ -54,7 +56,8 @@ class AVL:
     def get_balance(self, current):
         if current is None:
             return 0
-        return self._get_tree_height(current.left) - self._get_tree_height(current.right)
+        temp = self._get_tree_height(current.left) - self._get_tree_height(current.right)
+        return temp
 
     def rotate_left(self, parent):
         child = parent.right
@@ -98,13 +101,15 @@ class AVL:
             if current.left is None and current.right is None: # No child
                 return None
             elif current.right is None and current.left is not None: # Only left
-                return current.left
+                successor = current.left
+                return successor
             elif current.left is None: # Only right
-                return current.right
-            else: # Has both
-                successor = self._get_min(current.right)
-                current.data = successor
-                current.right = self._remove(current.right, successor)
+                successor = current.right
+                return successor
+            else: 
+                successor = self.getMinValueNode(current.right)
+                current.data = successor.data
+                current.right = self._remove(current.right, successor.data)
 
         current.height = 1 + max(self._get_tree_height(current.left), self._get_tree_height(current.right))
         balance = self.get_balance(current)
@@ -124,7 +129,12 @@ class AVL:
             return self.rotate_left(current)
 
         return current
-
+    
+    def getMinValueNode(self, current):
+        if current is None or current.left is None:
+            return current
+        return self.getMinValueNode(current.left)
+        
     def find(self, element):
         """ Finds the node """
         current = self._root
@@ -183,21 +193,7 @@ class AVL:
         """ Used BFS to count the deepest branch """
         if current is None:
             return -1
-
-        queue = [(current, 1)]
-        max_height = 0
-
-        while queue:
-            current, height = queue.pop(0)
-            max_height = max(max_height, height)
-
-            if current.left:
-                queue.append((current.left, height + 1))
-
-            if current.right:
-                queue.append((current.right, height + 1))
-
-        return max_height-1
+        return current.height
 
     def get_min(self):
         """ I had a miss match with the inputs, needed to know what node to start on """
@@ -268,26 +264,30 @@ def main():
     f_list = []
     g_list = [3, 2, 1, 4, 5, 6, 7]
     element_to_find = 5
-    element_to_delete = 12
+    element_to_delete = 5
     avl = AVL()
     for element in e_list:
         avl.insert(element)
+        # print(avl.to_graphviz())
+        # print("----------------------------------------------------------")
     print(":::: AVL ::::")
     print(f"-- Before removal of {element_to_delete} --")
     print(avl.to_graphviz())
-    avl.remove(element_to_delete)
+    avl.remove(12)
+    print(avl.pre_order_walk())
+    print(avl.post_order_walk())
     print(f"-- After removal of {element_to_delete} --")
-    print(avl.to_graphviz())
-    print(f"Does {element_to_find} exist in the tree?", avl.find(element_to_find))
+    # print(avl.to_graphviz())
+    # print(f"Does {element_to_find} exist in the tree?", avl.find(element_to_find))
     # print(f"-- Pre order --")
     # avl.pre_order_walk()
     # print(f"-- In order --")
     # avl.in_order_walk()
     # print(f"-- Post order --")
     # avl.post_order_walk()
-    print("Height =", avl.get_tree_height())
-    print("Min =", avl.get_min())
-    print("Max =", avl.get_max())
+    # print("Height =", avl.get_tree_height())
+    # print("Min =", avl.get_min())
+    # print("Max =", avl.get_max())
 
 if __name__ == '__main__':
     main()
