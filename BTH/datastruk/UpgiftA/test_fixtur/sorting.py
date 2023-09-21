@@ -138,26 +138,42 @@ def main():
     """instead of tests.py. will never get used. """
     avg = 0
     avgavg = 0
-    number = 10
+    number = 375
     print(number)
     for abc in range(0,5):
         for bcd in range(0,5):
             input_list = []
             input_list = np.random.randint(1000, 999999, size=number).tolist()
             timestamp_before = time.perf_counter()
-            mergesort_hybrid(input_list)
+            mergesort(input_list)
             timestamp_after = time.perf_counter()
             runtime = timestamp_after - timestamp_before
             avg = avg + runtime
         avg = avg / 5
         avgavg = avgavg + avg
-        print(f"avg {avg}")
+        # print(f"avg {avg}")
         avg = 0
     avgavg = avgavg / 5
     print(f"avgavg {avgavg}")
-    constant = avgavg / number * math.log(number)
-    # constant = avgavg / n**2
-    print(f"C {constant}")
+    
+    avg = 0
+    avgavg = 0
+    for abc in range(0,5):
+        for bcd in range(0,5):
+            input_list = []
+            input_list = np.random.randint(1000, 999999, size=number).tolist()
+            timestamp_before = time.perf_counter()
+            insertionsort(input_list)
+            timestamp_after = time.perf_counter()
+            runtime = timestamp_after - timestamp_before
+            avg = avg + runtime
+        avg = avg / 5
+        avgavg = avgavg + avg
+        # print(f"avg {avg}")
+        avg = 0
+    avgavg = avgavg / 5
+    print(f"avgavg {avgavg}")
+   
 
 if __name__ == "__main__":
     main()
