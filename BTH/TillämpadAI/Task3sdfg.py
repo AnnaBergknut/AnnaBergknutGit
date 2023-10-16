@@ -11,6 +11,7 @@ def evaluate_fitness(individual, maze, start, end):
     row, col = start
     visited_positions = set()  # Create a set to track visited positions
     fitness = 0.0  # Initialize fitness score
+    steps = 0
 
     for action in individual:
         # Calculate the next position based on the action
@@ -31,9 +32,11 @@ def evaluate_fitness(individual, maze, start, end):
             if maze[wall_row][wall_col] != 0:
                 new_row, new_col = row, col + 2
         
+        steps == steps + 1
+        
         # Check if the individual has reached the end
         if (row, col) == end:
-            return fitness + 100 # Reward maximum fitness when the end is reached
+            return fitness + 100, steps  # Reward maximum fitness when the end is reached
 
         # Check if the next position is a wall
         if maze[wall_row][wall_col] == 0:
@@ -43,41 +46,49 @@ def evaluate_fitness(individual, maze, start, end):
             if (new_row, new_col) in visited_positions:
                 fitness -= 0.2  # Penalize for revisiting a position
             else:
-                fitness += 0.1  # Revarding finding a new position
+                fitness += 0.1 # Revarding finding a new position
 
             # Update the visited positions
             visited_positions.add((new_row, new_col))
 
             # Update the current position
-            row, col = new_row, new_col      
-    return fitness
+            row, col = new_row, new_col
+    steps = -1        
+    return fitness, steps
 
 def genetic_algorithm(maze, start, end, individual_length, population_size, num_generations, mutation_rate):
     population = []
     for i in range(population_size):
         population.append(create_individual(individual_length))
+    
+    found_end_index = -1
 
     for generation in range(num_generations):
         # Evaluate the fitness of each individual
         fitness_scores = []
-        for ind in population:
-            fitness_score = evaluate_fitness(ind, maze, start, end)
-            fitness_scores.append(fitness_score)
         
+        for ind in population:
+            fitness_score, end_index = evaluate_fitness(ind, maze, start, end)
+            fitness_scores.append(fitness_score)
+            if end_index > 1:
+                found_end_index = end_index
+                print(found_end_index)
+    
         # Find the best individual in this generation
         best_fitness = max(fitness_scores)
         best_individual_index = fitness_scores.index(max(fitness_scores))
         best_individual = population[best_individual_index]
-        
+
         # Check if a solution has been found
         if fitness_scores[best_individual_index] > 0:
+            best_individual = best_individual[:found_end_index +1]
             print(f"Solution found in generation {generation}, It's Fitness: {best_fitness}, How many moves: {len(best_individual)}, It's Individual's Moves:\n {best_individual}")
             return population[best_individual_index]
         else:
             # Print generation
             print(f"Generation {generation}/{num_generations}")
             # Print the moves of the best individual for this generation
-            print(f"Generation {generation}, Best Fitness: {best_fitness}, Best Individual's Moves:\n {best_individual}")
+            # print(f"Generation {generation}, Best Fitness: {best_fitness}, Best Individual's Moves:\n {best_individual}")
 
         # Select individuals to create the next generation
         selected_population = []

@@ -1,11 +1,9 @@
 import random
+import math
+import numpy as np
 
 def create_individual(length):
-    actions = ['up', 'down', 'left', 'right']
-    individual = []
-    for i in range(length):
-        individual.append(random.choice(actions))
-    return individual
+    return [random.choice(['up', 'down', 'left', 'right']) for _ in range(length)]
 
 def evaluate_fitness(individual, maze, start, end):
     row, col = start
@@ -30,10 +28,6 @@ def evaluate_fitness(individual, maze, start, end):
             wall_row, wall_col = row, col + 1
             if maze[wall_row][wall_col] != 0:
                 new_row, new_col = row, col + 2
-        
-        # Check if the individual has reached the end
-        if (row, col) == end:
-            return fitness + 100 # Reward maximum fitness when the end is reached
 
         # Check if the next position is a wall
         if maze[wall_row][wall_col] == 0:
@@ -41,43 +35,37 @@ def evaluate_fitness(individual, maze, start, end):
         else:
             # Check if the position is already visited
             if (new_row, new_col) in visited_positions:
-                fitness -= 0.2  # Penalize for revisiting a position
-            else:
-                fitness += 0.1  # Revarding finding a new position
+                fitness -= 0.1  # Penalize for revisiting a position
 
             # Update the visited positions
             visited_positions.add((new_row, new_col))
 
             # Update the current position
-            row, col = new_row, new_col      
+            row, col = new_row, new_col
+
+        # Check if the individual has reached the end
+        if (row, col) == end:
+            fitness += 10.0  # Reward maximum fitness when the end is reached
+            
     return fitness
 
 def genetic_algorithm(maze, start, end, individual_length, population_size, num_generations, mutation_rate):
-    population = []
-    for i in range(population_size):
-        population.append(create_individual(individual_length))
+    population = [create_individual(individual_length) for _ in range(population_size)]
 
     for generation in range(num_generations):
         # Evaluate the fitness of each individual
-        fitness_scores = []
-        for ind in population:
-            fitness_score = evaluate_fitness(ind, maze, start, end)
-            fitness_scores.append(fitness_score)
+        fitness_scores = [evaluate_fitness(ind, maze, start, end) for ind in population]
+        
+        # Print the best fitness score achieved in this generation
+        best_fitness = max(fitness_scores)
+        print(f"Generation {generation}/{num_generations}, Best Fitness: {best_fitness}")
         
         # Find the best individual in this generation
-        best_fitness = max(fitness_scores)
         best_individual_index = fitness_scores.index(max(fitness_scores))
         best_individual = population[best_individual_index]
-        
-        # Check if a solution has been found
-        if fitness_scores[best_individual_index] > 0:
-            print(f"Solution found in generation {generation}, It's Fitness: {best_fitness}, How many moves: {len(best_individual)}, It's Individual's Moves:\n {best_individual}")
-            return population[best_individual_index]
-        else:
-            # Print generation
-            print(f"Generation {generation}/{num_generations}")
-            # Print the moves of the best individual for this generation
-            print(f"Generation {generation}, Best Fitness: {best_fitness}, Best Individual's Moves:\n {best_individual}")
+
+        # Print the moves of the best individual for this generation
+        print(f"Generation {generation}, Best Fitness: {best_fitness}, Best Individual's Moves:\n {best_individual}")
 
         # Select individuals to create the next generation
         selected_population = []
@@ -105,6 +93,12 @@ def genetic_algorithm(maze, start, end, individual_length, population_size, num_
             new_population.append(child)
 
         population = new_population
+
+        # Check if a solution has been found
+        best_individual_index = fitness_scores.index(max(fitness_scores))
+        if fitness_scores[best_individual_index] > 0:
+            print("Solution found in generation", generation)
+            return population[best_individual_index]
 
     print("No solution found.")
     return None  # If no solution is found
@@ -156,36 +150,31 @@ def main():
     best_solution = genetic_algorithm(maze, start_pos, end_pos, individual_length, population_size, num_generations, mutation_rate)
 
     if best_solution:
+        print("Genetic Algorithm Path:", best_solution)
+        maze = resetMaze()
+        visualize_maze(maze)
         row, col = start_pos
+        maze[row][col] = 2  # Mark the start
 
         for action in best_solution:
-            new_row, new_col = row, col  # Initialize new_row and new_col
-
-            # Check if there's a wall between the current position and the new position
             if action == 'up':
-                wall_row, wall_col = row - 1, col
-                if maze[wall_row][wall_col] != 0:
-                    new_row, new_col = row - 2, col
+                if row - 2 >= 0 and maze[row - 2][col] != 0:
+                    row -= 2
             elif action == 'down':
-                wall_row, wall_col = row + 1, col
-                if maze[wall_row][wall_col] != 0:
-                    new_row, new_col = row + 2, col
+                if row + 2 < len(maze) and maze[row + 2][col] != 0:
+                    row += 2
             elif action == 'left':
-                wall_row, wall_col = row, col - 1
-                if maze[wall_row][wall_col] != 0:
-                    new_row, new_col = row, col - 2
+                if col - 2 >= 0 and maze[row][col - 2] != 0:
+                    col -= 2
             elif action == 'right':
-                wall_row, wall_col = row, col + 1
-                if maze[wall_row][wall_col] != 0:
-                    new_row, new_col = row, col + 2
-            row, col = new_row, new_col
+                if col + 2 < len(maze[0]) and maze[row][col + 2] != 0:
+                    col += 2
             maze[row][col] = 4  # Mark the path
 
-        maze[start_pos[0]][start_pos[1]] = 2  # Mark the start
         maze[end_pos[0]][end_pos[1]] = 3  # Mark the end
         visualize_maze(maze)
     else:
-            print("No path found using the Genetic Algorithm")
+        print("No path found using the Genetic Algorithm")
 
 if __name__ == "__main__":
     main()
