@@ -6,6 +6,9 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>  
+#include <unistd.h>
+
 
 #define SIZE 1024
 
@@ -13,8 +16,7 @@ static double a[SIZE][SIZE];
 static double b[SIZE][SIZE];
 static double c[SIZE][SIZE];
 
-static void
-init_matrix(void)
+static void init_matrix(void)
 {
     int i, j;
 
@@ -29,8 +31,7 @@ init_matrix(void)
         }
 }
 
-static void
-matmul_seq()
+static void matmul_seq()
 {
     int i, j, k;
 
@@ -43,8 +44,7 @@ matmul_seq()
     }
 }
 
-static void
-print_matrix(void)
+static void print_matrix(void)
 {
     int i, j;
 
@@ -55,10 +55,18 @@ print_matrix(void)
     }
 }
 
-int
-main(int argc, char **argv)
+int main(int argc, char **argv)
 {
+    time_t begin = time(NULL); // start time to cauculate the execution time
+ 
+
     init_matrix();
     matmul_seq();
+
+
+    time_t end = time(NULL); //end time
+
+    printf("%ld\n", (end-begin)); // end-begin to get the executed time
     //print_matrix();
+    return 0;
 }

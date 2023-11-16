@@ -8,7 +8,7 @@ struct threadArgs {
 };
 
 void* child(void* params) {
-	struct threadArgs *args = (struct threadArgs*) params;
+	struct threadArgs *args = (struct threadArgs*) params; //copy the parameters to the new local struct
 	unsigned int childID = args->id;
 	unsigned int numThreads = args->numThreads;
 	printf("Greetings from child #%u of %u\n", childID, numThreads);
@@ -22,6 +22,7 @@ int main(int argc, char** argv) {
 	// get desired # of threads
 	if (argc > 1)
 		numThreads = atoi(argv[1]);
+	printf("%d, %s\n", argc, *argv);
 	children = malloc(numThreads * sizeof(pthread_t)); // allocate array of handles
 	for (unsigned int id = 0; id < numThreads; id++) {
 		// create threads
