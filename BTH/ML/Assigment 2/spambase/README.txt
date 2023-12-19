@@ -3,11 +3,10 @@
 - Jupyter Notebook
 
 ## Project Structure
-- `wine+quality`: File with diffrent dataset.
 - `main.ipynb`: Jupyter Notebook containing the project code.
-- `winequality-white.csv`: Dataset used for training and testing.
-- `training.csv`: 80% of the dataset for training purposes.
-- `test.csv`: 20% of the dataset reserved for testing.
+- `spambase.data`: Dataset used for training and testing.
+- `spambase.DOCUMENTATION`: Information about the data.
+- `spambase.names`: Information about the data.
 - `ML_A2.pdf`: Report.
 
 ## Instructions
@@ -16,13 +15,16 @@
 3. Explore the findings and analysis in the notebook.
 
 ## Dependencies
-- Python
-- scikit-learn
-- imbalanced-learn
-- matplotlib
-- pandas
-- seaborn
+1. Python
+2. scikit-learn
+3. pandas
+4. numpy
+5. scipy
 
 ## Notes
 - Ensure the necessary dependencies are installed.
-- The dataset is provided in `winequality-white.csv`.
+- The dataset is provided in `spambase.data`.
+
+- Anna Bergknut
+
+
